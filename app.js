@@ -4,8 +4,8 @@
  * @Version : 1.0
  * @Programmer : Max
  * @Date : 2019-09-06
- * @Released under : https://github.com/BaseMax/MysqlExpressJs/blob/master/LICENSE
- * @Repository : https://github.com/BaseMax/MysqlExpressJs
+ * @Released under : https://github.com/Vikas1020/Vikas1020.git/blob/master/LICENSE
+ * @Repository : https://github.com/Vikas1020/Vikas1020.git
  *
  **/
 let express = require('express')

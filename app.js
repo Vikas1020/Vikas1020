@@ -18,7 +18,7 @@ const util = require('util')
 // let MysqlJson = require('mysql-json')
 
 var db = mysql.createConnection({
-	host: 'localhost',
+	host: '127.0.0.1',
 	user: 'root',
 	password: 'YOUR_ROOT_PASSWORD',
 	database: 'asrez'

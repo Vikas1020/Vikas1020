@@ -1,80 +1,112 @@
 /**
  *
  * @Name : MysqlExpressJs/app.js
- * @Version : 1.0
- * @Programmer : Max
- * @Date : 2019-09-06
- * @Released under : https://github.com/Vikas1020/Vikas1020.git/blob/new-code/LICENSE
- * @Repository : https://github.com/Vikas1020/Vikas1020.git
+ * @Version : 1.1
+ * @Programmer : Max (fixed & stabilized)
  *
- **/
-let express = require('express')
-let cookieParser = require('cookie-parser')
-let bodyParser = require('body-parser')
-let multer  = require('multer')
-let app = express()
-var mysql = require('mysql2')
+ */
+
+const express = require('express')
+const cookieParser = require('cookie-parser')
+const bodyParser = require('body-parser')
+const mysql = require('mysql2')
 const util = require('util')
-// let MysqlJson = require('mysql-json')
+const path = require('path')
 
-var db = mysql.createConnection({
-	host: '127.0.0.1',
-	user: 'nodeuser',
-	password: 'Strong@123',
-	database: 'asrez'
+const app = express()
+
+/* ==========================
+   DATABASE CONFIG
+========================== */
+
+const db = mysql.createConnection({
+    host: '127.0.0.1',
+    user: 'nodeuser',
+    password: 'Strong@123',
+    database: 'asrez'
 })
+
 db.connect((err) => {
-	if(err) {
-		throw err;
-	}
-	console.log('Connected to database');
-});
-global.db = db;
-const query = util.promisify(db.query).bind(db);
+    if (err) {
+        console.error('❌ MySQL connection failed:', err.message)
+        process.exit(1)
+    }
+    console.log('✅ Connected to database')
+})
 
-let data = {
-	countPosts:async () => {
-		const rows = await query('select count(*) as count from `post`');
-		console.log(rows);
-	},
-	getPosts:async () => {
-		const posts = await query('select * from `post` ORDER BY `id` DESC');
-		for(let i=0;i<posts.length;i++) {
-			posts[i]["tags"]= await query('select * from `post_tag` WHERE `id` = '+ posts[i].id +' ORDER BY `id` DESC');
-		}
-		console.log(posts);
-		return posts
-	}
-}
+const query = util.promisify(db.query).bind(db)
 
-// app.use(multer({ dest: './upload/' }))
-app.use(cookieParser())  
+/* ==========================
+   EXPRESS CONFIG
+========================== */
+
+app.set('views', path.join(__dirname, 'view'))
+app.set('view engine', 'pug')
+
+app.use(express.static(path.join(__dirname, 'static')))
+app.use(cookieParser())
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-// app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({
-// 	extended: true
-// }))
-// app.use(bodyParser())
 
-const path = require('path')
-app.set('views', path.join(__dirname, 'view'))
-app.use(express.static('static'))
+/* ==========================
+   GLOBAL CONFIG
+========================== */
 
-let config= {
-	site:'http://localhost:8081/',
+const config = {
+    site: 'http://localhost:8081/'
 }
 
-app.get('/', async (request, response) => {
-	data.countPosts();
-	let posts=data.getPosts();
-	response.render('main', {config:config, posts:posts})
-	// return response.status(500).send("Error!");
+/* ==========================
+   DATA FUNCTIONS
+========================== */
+
+const data = {
+    countPosts: async () => {
+        const rows = await query('SELECT COUNT(*) AS count FROM post')
+        return rows[0].count
+    },
+
+    getPosts: async () => {
+        const posts = await query('SELECT * FROM post ORDER BY id DESC')
+
+        for (let i = 0; i < posts.length; i++) {
+            posts[i].tags = await query(
+                'SELECT * FROM post_tag WHERE post_id = ? ORDER BY id DESC',
+                [posts[i].id]
+            )
+        }
+
+        return posts
+    }
+}
+
+/* ==========================
+   ROUTES
+========================== */
+
+app.get('/', async (req, res) => {
+    try {
+        const totalPosts = await data.countPosts()
+        const posts = await data.getPosts()
+
+        res.render('main', {
+            config,
+            posts,
+            totalPosts
+        })
+    } catch (err) {
+        console.error('❌ Route error:', err)
+        res.status(500).send('Internal Server Error')
+    }
 })
 
-let server = app.listen(8081, function () {
-	let host = server.address().address
-	let port = server.address().port
-	console.log("MysqlExpressJs App listening at http://%s:%s", host, port)
+/* ==========================
+   SERVER START
+========================== */
+
+const PORT = 8081
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 MysqlExpressJs App running on http://0.0.0.0:${PORT}`)
 })
+

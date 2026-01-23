@@ -20,7 +20,7 @@ const util = require('util')
 var db = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
-	password: '',
+	password: 'YOUR_ROOT_PASSWORD',
 	database: 'asrez'
 })
 db.connect((err) => {

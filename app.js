@@ -13,7 +13,7 @@ let cookieParser = require('cookie-parser')
 let bodyParser = require('body-parser')
 let multer  = require('multer')
 let app = express()
-var mysql = require('mysql')
+var mysql = require('mysql2')
 const util = require('util')
 // let MysqlJson = require('mysql-json')
 

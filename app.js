@@ -58,8 +58,8 @@ app.use(bodyParser.json())
 // }))
 // app.use(bodyParser())
 
-app.set('view engine', 'pug')
-app.set('views', './view')
+const path = require('path')
+app.set('views', path.join(__dirname, 'view'))
 app.use(express.static('static'))
 
 let config= {

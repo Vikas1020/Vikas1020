@@ -19,8 +19,8 @@ const util = require('util')
 
 var db = mysql.createConnection({
 	host: '127.0.0.1',
-	user: 'root',
-	password: 'YOUR_ROOT_PASSWORD',
+	user: 'nodeuser',
+	password: 'Strong@123',
 	database: 'asrez'
 })
 db.connect((err) => {
